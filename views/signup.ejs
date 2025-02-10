@@ -1,0 +1,27 @@
+<%- include('partials/_header', { title: 'Log In' }) %>
+  <div class="container-fluid d-flex  flex-column justify-content-center bg-primary vh-100">
+    <div class="row flex-grow-1 mt-5">
+       <div class="col-lg-6">
+        <h1 class="text-center">Welcome to the Whatsupp</h1>
+        <h3 class="text-center">Get Started by signing up</h3>
+        <p class="text-center">Sign up to create an account and start chatting with your friends.</p>
+        <div class="text-center">
+          <img src="/img/Whatsupp.png" alt="WhatsApp Image" class="img-fluid" width="40%">
+        </div>
+       </div>
+       <div class="col-lg-6">
+      <form action="/auth/signup" method="POST" class="col-lg-6">
+        <h2 class="fs-4 lead fw-bold">Sign Up</h2>
+         <label for="username" class="form-label">UserName</label>
+         <input type="text" id="username" name="username" class="form-control" required>
+        
+         <label for="password" class="form-label">Password</label>
+         <input type="password" id="password" name="password" class="form-control" required>
+         
+         <button type="submit" class="btn btn-success my-3">Sign Up</button>
+       </form>
+       <a href="/auth/login" class="text-decoration-none text-white m-2">Already have an account? Log In</a>
+      </div>
+    </div>
+  </div>
+<%- include('partials/_footer') %>

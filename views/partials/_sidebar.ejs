@@ -1,0 +1,69 @@
+<div class="px-2 pb-2">
+  <div class="d-flex align-items-center justify-content-between">
+    <img src="/img/Whatsupp.png" alt="Whatsupp" class="img-fluid mb-1" width="20%">
+    <div class="dropdown">
+      <button class=" border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="ri-edit-box-line fs-4 text-white"></i>
+        <% if(friendRequests.length > 0) {%>
+        <i class="alertBox"><%= friendRequests.length %></i>
+        <%}%>
+      </button>
+      <ul class="dropdown-menu" style="width: 300px; min-width: fit-content;">
+        <li>
+          <h4 class="dropdown-item">
+            <%= currentUser.username %>
+          </h4>
+        </li>
+        <li>
+          <a href="/users/profile" class="dropdown-item">View profile</a>
+        </li>
+        <!-- Pending Friend Requests -->
+        <% if(friendRequests.length> 0) {%>
+          <li>
+            <h2 class="mb-2 lead dropdown-item fw-bold">Pending Requests</h2>
+            <ul class="list-group" id="friend-requests">
+              <% friendRequests.forEach(request=> { %>
+                <li style="cursor: default;" class="dropdown-item d-flex align-items-center justify-content-between gap-2 ">
+                  <h4 class="lead fw-bold">
+                      <%= request.sender_username %>
+                  </h4>
+                  <div class="d-flex gap-2 align-items-center">
+                    <form action="/friends/accept-request" method="POST" class="m-0 p-0">
+                      <input type="hidden" name="requestId" value="<%= request.id %>">
+                      <input type="hidden" name="token" value="<%= token %>">
+                      <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                    </form>
+                    <form action="/friends/reject-request" method="POST" class="m-0 p-0">
+                      <input type="hidden" name="requestId" value="<%= request.id %>">
+                      <input type="hidden" name="token" value="<%= token %>">
+                      <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                  </div>
+                </li>
+                <% }) %>
+            </ul>
+          </li>
+          <% } %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <form action="/users/search" method="GET" class="mb-3 d-flex align-items-center gap-2">
+    <input type="text" name="username" placeholder="Search by username" class="form-control" required>
+    <input type="hidden" name="token" value="<%= token %>">
+    <button type="submit" class="btn btn btn-success">Search</button>
+  </form>
+  <hr class="mb-3">
+  <h2 class="mb-2 lead fs-5 fw-bold">Chats</h2>
+  <ul class="list-group" id="user-list">
+    <% friends.forEach(user=> { %>
+      <a href="/messages/chat?token=<%= token %>&receiverId=<%= user.id %>"
+        class="btn text-start text-decoration-none lead bg-success-subtle mb-2">
+        <li class="btn p-0">
+          <%= user.username %>
+        </li>
+      </a>
+      <% }) %>
+  </ul>
+</div>

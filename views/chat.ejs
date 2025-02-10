@@ -1,0 +1,90 @@
+<%- include('partials/_header', { title: 'Chat with ' + receiverUsername }); %>
+
+  <div class="container-fluid vh-100 d-flex flex-column">
+    <div class="row flex-grow-1">
+      <!-- Sidebar (Hidden on Mobile) -->
+      <div class="col-lg-3 d-none d-lg-block bg-primary p-3">
+        <%- include('partials/_sidebar', { users, token , friendRequests }); %>
+      </div>
+
+      <!-- Chat Window -->
+      <div class="col-lg-9 d-flex flex-column bg-light p-0">
+        <!-- Chat Header (Fixed) -->
+        <div class="bg-primary p-2 d-flex gap-2 text-white">
+
+          <a class="d-block d-lg-none text-white text-decoration-none" href="/users/select-receiver?token=<%= token %>">
+            <i class="ri-arrow-left-line"></i>
+          </a>
+          <div>
+            <strong>
+              <%= receiverUsername %>
+            </strong>
+            <div class="typing"></div>
+          </div>
+        </div>
+
+        <!-- Chat Messages (Scrollable) -->
+        <div id="chat-window" class="flex-grow-1 overflow-auto p-3">
+          <% messages.forEach(message=> { %>
+            <% if(message.is_deleted===0) { %>
+              <div class="message <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded"
+                id="message-container-<%= message.id %>">
+                <% if (message.sender_id===userId) { %>
+                  <div class="message-dropdown position-relative">
+                    <div class="btn-group dropstart">
+                      <button type="button" style="padding: 0 0 4px !important;"
+                        class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li class="dropdown-item">
+                          <button class="dropdown-item"
+                            onclick="editMessage('<%= message.id %>', '<%= token %>','<%= receiverId %>')">
+                            <i class="ri-pencil-line"></i> Edit
+                          </button>
+                        </li>
+                        <li class="dropdown-item">
+                          <form id="deleteMessageForm" class="m-0 p-0">
+                            <input type="hidden" name="token" value="<%= token %>">
+                            <input type="hidden" name="receiverId" value="<%= receiverId %>">
+                            <button type="button" class="dropdown-item"
+                              onclick="deleteMessage('<%= message.id %>', '<%= token %>', '<%= receiverId %>')">
+                              <i class="ri-delete-bin-5-line"></i> Delete
+                            </button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <% } %>
+                    <div class="message-content">
+                      <p class="mb-1">
+                        <%= message.message %>
+                      </p>
+                      <small class="text-muted">
+                        <%= message.created_at %>
+                      </small>
+                    </div>
+              </div>
+              <% } %>
+                <% }) %>
+        </div>
+
+        <!-- Message Form (Fixed at Bottom) -->
+        <div class="bg-primary px-2 pt-2 pb-3 position-relative">
+          <form class="d-flex gap-2 align-items-center" id="message-form" action="/messages/send" method="POST">
+            <input type="hidden" name="receiverId" value="<%= receiverId %>">
+            <input type="hidden" name="token" value="<%= token %>">
+            <textarea name="message" rows="1" id="message" placeholder="Type your message..."
+              class="form-control outline-0 border-0" required></textarea>
+            <button type="submit" class="btn">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chat/webSocket.js"></script>
+  <script src="/js/chat/scrollToBottom.js"></script>
+  <script src="/js/chat/editAndDeleteMessage.js"></script>
+  <%- include('partials/_footer') %>

@@ -1,0 +1,9 @@
+<div class="col-lg-4">
+    <form action="/users/update-name/<%= userId %>" method="POST" class="d-flex align-items-center gap-2">
+        <input type="text" name="newUsername" id="name" value="<%= currentUser.username %>" class="form-control">
+        <input type="hidden" name="token" value="<%= token %>" class="d-none">
+        <button type="submit" class="btn btn-sm btn-success">Update</button>
+    </form>
+</div>
+
+

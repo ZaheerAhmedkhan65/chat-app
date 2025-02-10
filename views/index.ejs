@@ -1,0 +1,22 @@
+<%- include('partials/_header', { title: 'Whatsupp' }) %>
+  
+  <div class="container-fluid d-flex  flex-column justify-content-center bg-primary vh-100">
+    <div class="row flex-grow-1 mt-5">
+      <div class="col-lg-6">
+        <h1 class="text-center">Welcome to the Whatsupp</h1>
+        <div class="text-center">
+          <img src="/img/Whatsupp.png" alt="WhatsApp Image" class="img-fluid" width="40%">
+        </div>
+        <p class="text-center">Connect with your friends and family on Whatsupp.</p>
+      </div>
+      <div class="col-lg-6">
+      <h2 class="text-start">Get Started</h2>
+      <p class="text-start">Create an account or log in to get started.</p>
+      <div class="d-flex gap-3">
+        <a href="/auth/signup" class="btn btn-outline-success btn-sm">Sign Up</a> 
+        <a href="/auth/login" class="btn btn-success btn-sm">Log In</a>
+      </div>
+      </div>
+    </div>
+  </div>
+<%- include('partials/_footer') %>

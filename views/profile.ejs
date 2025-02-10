@@ -1,0 +1,104 @@
+<%- include("partials/_header", { title: "Profile" }) %>
+    <div class="container-fluid vh-100 d-flex flex-column">
+        <div class="row flex-grow-1">
+            <!-- Sidebar (Visible on Mobile, Hidden on Large Screens) -->
+            <div class="col-12 col-lg-3 d-none d-lg-block bg-primary p-3">
+                <%- include('partials/_sidebar', { users, token, friendRequests }); %>
+            </div>
+
+            <!-- Main Content Area (Hidden on Mobile, Visible on Large Screens) -->
+            <div class="col-lg-9 d-lg-block d-flex flex-column bg-light p-0">
+                <!-- Header Section -->
+                <div class="bg-primary py-2 px-3 text-white">
+                    <h1 class="lead fs-4 fw-bold mb-0">
+                        <a class="text-white text-decoration-none px-2"
+                            href="/users/select-receiver?token=<%= token %>">
+                            <i class="ri-arrow-left-line"></i>
+                        </a>
+                        Your Profile
+                    </h1>
+                </div>
+
+                <!-- Instructional Text -->
+                <div class="p-3">
+
+                    <p class="lead fs-4">
+                        <h3 id="nameContainer">
+                            <%= currentUser.username %>
+                            <button class="border-0 bg-transparent" onclick="editName('<%= userId %>','<%= token %>')">
+                                <i class="ri-pencil-line"></i> 
+                            </button>
+                        </h3>
+                    </p>
+
+                    <p class="lead m-0">
+                        <strong class="m-0">About</strong>
+                    </p>
+                    <p id="aboutContainer" class="lead" id="about">
+                        <%= currentUser.about %>
+                            <button class="border-0 bg-transparent" onclick="editAbout('<%= userId %>','<%= token %>')">
+                                <i class="ri-pencil-line"></i> 
+                            </button>
+                    </p>
+                    <form action="/auth/logout" method="get" onsubmit="return confirmLogout('<%= currentUser.username %>')">
+                        <input type="hidden" name="token" value="<%= token %>">
+                        <button type="submit" class="btn btn-danger">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editAbout(userId, token) {
+            const aboutContainer = document.getElementById("aboutContainer");
+
+            if (!aboutContainer) {
+                console.error(`Element not found: aboutContainer `);
+                return;
+            }
+            fetch(`/users/edit-about/${userId}?token=${token}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Unauthorized or bad request');
+                    return response.text();
+                })
+                .then(html => {
+                    aboutContainer.innerHTML = html;
+                })
+                .catch(error => console.error('Error fetching edit form:', error));
+        }
+
+        function editName(userId, token) {
+            const nameContainer = document.getElementById("nameContainer");
+
+            if (!nameContainer) {
+                console.error(`Element not found: aboutContainer `);
+                return;
+            }
+            fetch(`/users/edit-name/${userId}?token=${token}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Unauthorized or bad request');
+                    return response.text();
+                })
+                .then(html => {
+                    nameContainer.innerHTML = html;
+                })
+                .catch(error => console.error('Error fetching edit form:', error));
+            }
+            function confirmLogout(name) {
+        // Show a confirmation dialog before logout
+        return confirm(`${name} Are you sure you want to log out?`);
+    }
+    </script>
+
+    <%- include('partials/_footer') %>
