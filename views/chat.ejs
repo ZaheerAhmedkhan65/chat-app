@@ -84,7 +84,77 @@
     </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/chat/webSocket.js"></script>
+  <script>
+    const socket = io();
+    const userId = "<%= userId %>";
+    console.log("User id : " + userId);
+    const messageForm = document.getElementById("message-form");
+    const messageInput = document.getElementById("message");
+    const typingContainer = document.querySelector(".typing");
+    let typingTimeout;
+
+    function stopTyping() {
+      socket.emit("stop typing");
+    }
+
+    messageInput.addEventListener("input", () => {
+      socket.emit("typing", "Typing . . .");
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(stopTyping, 500);
+    });
+
+    messageForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const message = messageInput.value.trim();
+      if (message) {
+        messageInput.value = "";
+        socket.emit("send_message", {
+          message,
+          receiverId: "<%- receiverId %>",
+          senderId: userId,
+          token: "<%= token %>"
+        });
+      }
+    });
+
+    socket.on("receive_message", (data) => {
+      console.log("Received message from server:", data);
+
+      const messageContainer = document.createElement("div");
+      console.log(data);
+
+      // Add the message ID to the container
+      messageContainer.id = `message-container-${data.id}`;
+
+      if (data.senderId === userId) {
+        messageContainer.classList.add("message", "sent", "p-2", "mb-2", "rounded");
+      } else {
+        messageContainer.classList.add("message", "received", "p-2", "mb-2", "rounded");
+      }
+
+      // Render the message with the ID and timestamp
+      messageContainer.innerHTML = `
+        <div class="message-content">
+          <p class="mb-1">
+            ${data.message}
+          </p>
+          <small class="text-muted">
+${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}          </small>
+        </div>
+      `;
+
+      document.getElementById("chat-window").appendChild(messageContainer);
+      scrollToBottom();
+    });
+
+    socket.on("typing", () => {
+      typingContainer.textContent = "Typing . . .";
+    });
+
+    socket.on("stop typing", () => {
+      typingContainer.textContent = "";
+    });
+  </script>
   <script src="/js/chat/scrollToBottom.js"></script>
   <script src="/js/chat/editAndDeleteMessage.js"></script>
   <%- include('partials/_footer') %>
