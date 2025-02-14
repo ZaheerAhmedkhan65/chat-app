@@ -12,7 +12,7 @@
                 <div class="bg-primary py-2 px-3 text-white">
                     <h1 class="lead fs-4 fw-bold mb-0">
                         <a class="text-white text-decoration-none px-2"
-                            href="/users/select-receiver?token=<%= token %>">
+                            href="/users/select-receiver">
                             <i class="ri-arrow-left-line"></i>
                         </a>
                         Your Profile
@@ -57,7 +57,7 @@
                 console.error(`Element not found: aboutContainer `);
                 return;
             }
-            fetch(`/users/edit-about/${userId}?token=${token}`, {
+            fetch(`/users/edit-about/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -80,7 +80,7 @@
                 console.error(`Element not found: aboutContainer `);
                 return;
             }
-            fetch(`/users/edit-name/${userId}?token=${token}`, {
+            fetch(`/users/edit-name/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -1,16 +1,5 @@
 const Message = require('../models/Message');
 
-const sendMessage = async (req, res) => {
-    const { receiverId, message, token } = req.body;
-    const senderId = req.userId;
-    try {
-        await Message.create(senderId, receiverId, message);
-        res.status(201).redirect(`/messages/chat?token=${token}&receiverId=${receiverId}`);
-    } catch (error) {
-        res.status(500).json({ error: 'Error sending message' });
-    }
-};
-
 const getMessages = async (req, res) => {
     const { receiverId } = req.query;
     const senderId = req.userId;
@@ -31,17 +20,6 @@ const getMessages = async (req, res) => {
     } catch (error) {
         console.error('Error fetching messages:', error); // Log the error
         res.status(500).json({ error: 'Error fetching messages' });
-    }
-};
-
-const updateMessage = async (req, res) => {
-    const { messageId } = req.params;
-    const { newMessage , token, receiverId } = req.body;
-    try {
-        await Message.update(messageId, newMessage);
-        res.redirect(`/messages/chat?token=${token}&receiverId=${receiverId}`);
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating message' });
     }
 };
 
@@ -66,4 +44,4 @@ const deleteMessage = async (req, res) => {
 
 
 
-module.exports = { sendMessage, getMessages, updateMessage, deleteMessage };
+module.exports = {getMessages, deleteMessage };

@@ -21,10 +21,6 @@ class Message {
     );
     return rows;
   }
-  
-  static async update(messageId, newMessage) {
-    await db.execute('UPDATE messages SET message = ? WHERE id = ?', [newMessage, messageId]);
-  }
 
   static async delete(messageId) {
     await db.execute('UPDATE messages SET is_deleted = TRUE WHERE id = ?', [messageId]);

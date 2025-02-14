@@ -12,7 +12,7 @@
         <!-- Chat Header (Fixed) -->
         <div class="bg-primary p-2 d-flex gap-2 text-white">
 
-          <a class="d-block d-lg-none text-white text-decoration-none" href="/users/select-receiver?token=<%= token %>">
+          <a class="d-block d-lg-none text-white text-decoration-none" href="/users/select-receiver">
             <i class="ri-arrow-left-line"></i>
           </a>
           <div>
@@ -72,7 +72,7 @@
 
         <!-- Message Form (Fixed at Bottom) -->
         <div class="bg-primary px-2 pt-2 pb-3 position-relative">
-          <form class="d-flex gap-2 align-items-center" id="message-form" action="/messages/send" method="POST">
+          <form class="d-flex gap-2 align-items-center" id="message-form">
             <input type="hidden" name="receiverId" value="<%= receiverId %>">
             <input type="hidden" name="token" value="<%= token %>">
             <textarea name="message" rows="1" id="message" placeholder="Type your message..."
@@ -87,7 +87,7 @@
   <script>
     const socket = io();
     const userId = "<%= userId %>";
-    console.log("User id : " + userId);
+    
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message");
     const typingContainer = document.querySelector(".typing");
@@ -111,29 +111,95 @@
         socket.emit("send_message", {
           message,
           receiverId: "<%- receiverId %>",
-          senderId: userId,
-          token: "<%= token %>"
+          senderId: userId
         });
       }
     });
 
-    socket.on("receive_message", (data) => {
-      console.log("Received message from server:", data);
 
+    socket.on("message_updated", (data) => {
+      const messageContainer = document.getElementById(`message-container-${data.messageId}`);
+      if (messageContainer) {
+        // Update the message content
+        messageContainer.innerHTML = `
+        ${data.senderId === userId ? `
+        <div class="message-dropdown position-relative">
+          <div class="btn-group dropstart">
+            <button type="button" style="padding: 0 0 4px !important;"
+              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+              data-bs-toggle="dropdown" aria-expanded="false">
+            </button>
+            <ul class="dropdown-menu">
+              <li class="dropdown-item">
+                <button class="dropdown-item"
+                  onclick="editMessage(${data.messageId},${data.receiverId})">
+                  <i class="ri-pencil-line"></i> Edit
+                </button>
+              </li>
+              <li class="dropdown-item">
+                <button type="button" class="dropdown-item"
+                  onclick="deleteMessage(${data.messageId},${data.receiverId})">
+                  <i class="ri-delete-bin-5-line"></i> Delete
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>` : ''}
+      <div class="message-content">
+        <p class="mb-1">
+          ${data.newMessage}
+        </p>
+        <small class="text-muted">
+          ${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}          </small>
+        </small>
+      </div>
+    `;
+      }
+    });
+
+    socket.on("receive_message", (data) => {
       const messageContainer = document.createElement("div");
-      console.log(data);
 
       // Add the message ID to the container
       messageContainer.id = `message-container-${data.id}`;
 
       if (data.senderId === userId) {
         messageContainer.classList.add("message", "sent", "p-2", "mb-2", "rounded");
+
       } else {
         messageContainer.classList.add("message", "received", "p-2", "mb-2", "rounded");
       }
 
+
       // Render the message with the ID and timestamp
       messageContainer.innerHTML = `
+      ${data.senderId === userId ? `
+      <div class="message-dropdown position-relative">
+            <div class="btn-group dropstart">
+              <button type="button" style="padding: 0 0 4px !important;"
+                class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                data-bs-toggle="dropdown" aria-expanded="false">
+              </button>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item">
+                  <button class="dropdown-item"
+                    onclick="editMessage(${data.id},${receiverId})">
+                    <i class="ri-pencil-line"></i> Edit
+                  </button>
+                </li>
+                <li class="dropdown-item">
+                  <form id="deleteMessageForm" class="m-0 p-0">
+                    <input type="hidden" name="token" value="<%= token %>">
+                    <input type="hidden" name="receiverId" value="${receiverId}">
+                    <button type="button" class="dropdown-item"
+                      onclick="deleteMessage(${data.id}, ${receiverId})">
+                      <i class="ri-delete-bin-5-line"></i> Delete
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>` : ''}
         <div class="message-content">
           <p class="mb-1">
             ${data.message}
@@ -145,6 +211,26 @@ ${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { h
 
       document.getElementById("chat-window").appendChild(messageContainer);
       scrollToBottom();
+    });
+
+    socket.on("message_deleted", (data) => {
+      const messageContainer = document.getElementById(`message-container-${data.messageId}`);
+      if (messageContainer) {
+        // Update the message content to show it has been deleted
+        messageContainer.innerHTML = `
+      <div class="message-content">
+        <p class="mb-1 text-muted">
+          <i>This message has been deleted.</i>
+        </p>
+      </div>
+    `;
+
+        // Remove the dropdown menu (edit/delete buttons)
+        const dropdown = messageContainer.querySelector(".message-dropdown");
+        if (dropdown) {
+          dropdown.remove();
+        }
+      }
     });
 
     socket.on("typing", () => {

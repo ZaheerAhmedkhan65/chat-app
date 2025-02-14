@@ -54,8 +54,8 @@ router.get('/search', authenticate, async (req, res) => {
         users, 
         currentUser,
         friendRequests, 
-        friends, 
-        token: req.query.token 
+        friends,
+        token: req.query.token
       });
   
     } catch (error) {
@@ -101,7 +101,7 @@ router.get('/search', authenticate, async (req, res) => {
         const { userId } = req.params;
         const { newAbout,token } = req.body;
         await User.updateAbout(userId, newAbout);
-        res.redirect(`/users/profile?token=${token}`);
+        res.redirect(`/users/profile`);
     } catch (error) {
         console.error("Error updating user about:", error);
         res.status(500).json({ error: "Error updating user about" });
@@ -124,7 +124,7 @@ router.post('/update-name/:userId',authenticate, async (req, res) => {
       const { userId } = req.params;
       const { newUsername,token } = req.body;
       await User.updateName(userId, newUsername);
-      res.redirect(`/users/profile?token=${token}`);
+      res.redirect(`/users/profile`);
   } catch (error) {
       console.error("Error updating user about:", error);
       res.status(500).json({ error: "Error updating user about" });

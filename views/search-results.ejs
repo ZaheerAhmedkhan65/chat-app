@@ -12,7 +12,7 @@
         <!-- Search Results Header -->
         <div class="bg-primary py-2 px-3">
           <h2 class="lead fs-4 fw-bold mb-0 text-white">
-            <a class="text-white text-decoration-none px-2" href="/users/select-receiver?token=<%= token %>">
+            <a class="text-white text-decoration-none px-2" href="/users/select-receiver">
               <i class="ri-arrow-left-line"></i>
             </a>
             Search Results
@@ -33,7 +33,7 @@
 
                     <% if (friends.some(friend=> friend.id === user.id)) { %>
                       <!-- If Already Friends, show a link to chat -->
-                      <a href="/messages/chat?token=<%= token %>&receiverId=<%= user.id %>"
+                      <a href="/messages/chat?receiverId=<%= user.id %>"
                         class="btn btn-secondary">Chat with <%= user.username %></a>
                       <% } else { %>
                         <!-- If not friends, show the send friend request form -->
