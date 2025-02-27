@@ -23,7 +23,7 @@ router.get('/chat', authenticate, async (req, res) => {
 
     // Fetch messages
     const messages = await getMessages(req, res);
-
+   
     // Fetch receiver's username
     const receiver = await User.findByUserId(receiverId);
     const receiverUsername = receiver ? receiver.username : 'Unknown';

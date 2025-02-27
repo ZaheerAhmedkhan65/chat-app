@@ -9,12 +9,17 @@ function editMessage(messageId, receiverId) {
   // Get the message content
   const messageContent = messageContainer.querySelector(".message-content p").textContent.trim();
 
+ // Get the message image (if it exists)
+ const messageImageElement = messageContainer.querySelector(".message-content img");
+ const messageImage = messageImageElement ? messageImageElement.src : null;
+  
   // Store the original message in a data attribute
   messageContainer.dataset.originalMessage = messageContent;
 
   // Replace the message content with the edit form
   messageContainer.innerHTML = `
     <div class="message-content">
+      ${messageImage ? `<img src="${messageImage}" alt="Message Image" class="message-image">` : ""}
       <form id="edit-message-form-${messageId}">
         <input type="text" name="newMessage" id="edit-message-input-${messageId}" value="${messageContent}" class="form-control" required>
         <input type="hidden" name="receiverId" value="${receiverId}" class="d-none">
@@ -34,6 +39,7 @@ function editMessage(messageId, receiverId) {
         messageId,
         newMessage,
         receiverId,
+        imageUrl: messageImage,
         senderId: userId,
       });
     }
@@ -47,6 +53,11 @@ function cancelEdit(messageId) {
     console.error("Message container not found");
     return;
   }
+
+  // Get the message image (if it exists)
+ const messageImageElement = messageContainer.querySelector(".message-content img");
+ const messageImage = messageImageElement ? messageImageElement.src : null;
+  
 
   // Get the original message content from the data attribute
   const originalMessage = messageContainer.dataset.originalMessage;
@@ -76,12 +87,21 @@ function cancelEdit(messageId) {
         </div>
       </div>
     <div class="message-content">
-      <p class="mb-1">
-        ${originalMessage}
-      </p>
-      <small class="text-muted">
-        ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-      </small>
+    ${messageImage ? `
+      <div class="message-image-content">
+        ${messageImage ? `<img src="${messageImage}" alt="Message Image" class="message-image">` : ""}
+      </div>
+      `:""
+    }
+      
+      <div class="message-text-content">
+        <p class="mb-1">
+          ${originalMessage}
+        </p>
+        <small class="text-muted">
+          ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+        </small>
+      </div>
     </div>
   `;
 }

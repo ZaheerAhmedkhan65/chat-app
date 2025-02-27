@@ -26,53 +26,71 @@
         <!-- Chat Messages (Scrollable) -->
         <div id="chat-window" class="flex-grow-1 overflow-auto p-3">
           <% messages.forEach(message=> { %>
-            <% if(message.is_deleted===0) { %>
-              <div class="message <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded"
-                id="message-container-<%= message.id %>">
-                <% if (message.sender_id===userId) { %>
-                  <div class="message-dropdown position-relative">
-                    <div class="btn-group dropstart">
-                      <button type="button" style="padding: 0 0 4px !important;"
-                        class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li class="dropdown-item">
-                          <button class="dropdown-item"
-                            onclick="editMessage('<%= message.id %>', '<%= token %>','<%= receiverId %>')">
-                            <i class="ri-pencil-line"></i> Edit
-                          </button>
-                        </li>
-                        <li class="dropdown-item">
-                          <form id="deleteMessageForm" class="m-0 p-0">
-                            <input type="hidden" name="token" value="<%= token %>">
-                            <input type="hidden" name="receiverId" value="<%= receiverId %>">
-                            <button type="button" class="dropdown-item"
-                              onclick="deleteMessage('<%= message.id %>', '<%= token %>', '<%= receiverId %>')">
-                              <i class="ri-delete-bin-5-line"></i> Delete
-                            </button>
-                          </form>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <% } %>
-                    <div class="message-content">
-                      <p class="mb-1">
-                        <%= message.message %>
-                      </p>
-                      <small class="text-muted">
-                        <%= message.created_at %>
-                      </small>
-                    </div>
+            <% if(message.is_deleted===1) { %>
+              <div class="message  <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded">
+                <div class="message-content">
+                  <p class="mb-1 text-muted deleted-message" style="font-style: italic;"> <i class="<%= message.sender_id === userId ? '' : 'text-white' %>">This message has been deleted.</i></p>
+                </div>
               </div>
-              <% } %>
-                <% }) %>
+              <% } else { %>
+                <div class="message <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded"
+                  id="message-container-<%= message.id %>">
+                  <% if (message.sender_id===userId) { %>
+                    <div class="message-dropdown position-relative">
+                      <div class="btn-group dropstart">
+                        <button type="button" style="padding: 0 0 4px !important;"
+                          class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                          data-bs-toggle="dropdown" aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li class="dropdown-item">
+                            <button class="dropdown-item"
+                              onclick="editMessage('<%= message.id %>','<%= token %>','<%= receiverId %>')">
+                              <i class="ri-pencil-line"></i> Edit
+                            </button>
+                          </li>
+                          <li class="dropdown-item">
+                            <form id="deleteMessageForm" class="m-0 p-0">
+                              <input type="hidden" name="token" value="<%= token %>">
+                              <input type="hidden" name="receiverId" value="<%= receiverId %>">
+                              <button type="button" class="dropdown-item"
+                                onclick="deleteMessage('<%= message.id %>', '<%= token %>', '<%= receiverId %>')">
+                                <i class="ri-delete-bin-5-line"></i> Delete
+                              </button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <% } %>
+                      <div class="message-content">
+                        <% if (message.image_url) { %>
+                          <div class="message-image-content">
+                            <img src="<%= message.image_url %>" alt="Sent Image" class="message-image">
+                          </div>
+                          <% } %>
+                            <div class="message-text-content">
+                              <p class="mb-1">
+                                <%= message.message %>
+                              </p>
+                              <small class="text-muted">
+                                <%= message.created_at %>
+                              </small>
+                            </div>
+                      </div>
+                </div>
+                <% } %>
+                  <% }) %>
         </div>
 
         <!-- Message Form (Fixed at Bottom) -->
         <div class="bg-primary px-2 pt-2 pb-3 position-relative">
           <form class="d-flex gap-2 align-items-center" id="message-form">
+            <!-- Add a file input for image uploads -->
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button type="button" id="file-upload-button" class="btn">
+              <i class="ri-add-circle-line text-white fs-3"></i>
+            </button>
             <input type="hidden" name="receiverId" value="<%= receiverId %>">
             <input type="hidden" name="token" value="<%= token %>">
             <textarea name="message" rows="1" id="message" placeholder="Type your message..."
@@ -87,33 +105,72 @@
   <script>
     const socket = io();
     const userId = "<%= userId %>";
-    
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message");
     const typingContainer = document.querySelector(".typing");
+    const fileInput = document.getElementById("file-input");
+    const fileUploadButton = document.getElementById("file-upload-button");
     let typingTimeout;
+
+    // Trigger file input when the upload button is clicked
+    fileUploadButton.addEventListener("click", () => {
+      fileInput.click();
+    });
+    // Handle form submission
+    messageForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = messageInput.value.trim();
+      const file = fileInput.files[0];
+
+      if (!message && !file) {
+        alert("Please enter a message or select an image.");
+        return;
+      }
+
+      let imageUrl = null;
+
+      // If a file is selected, upload it and get the image URL
+      if (file) {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+          const uploadResponse = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await uploadResponse.json();
+          imageUrl = data.imageUrl;
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          alert("Failed to upload image. Please try again.");
+          return;
+        }
+      }
+
+      // Send the message and image URL to the server
+      socket.emit("send_message", {
+        message,
+        imageUrl,
+        receiverId,
+        senderId: userId,
+      });
+
+      // Clear the input fields
+      messageInput.value = "";
+      fileInput.value = "";
+    });
+
 
     function stopTyping() {
       socket.emit("stop typing");
     }
 
+
     messageInput.addEventListener("input", () => {
       socket.emit("typing", "Typing . . .");
       clearTimeout(typingTimeout);
       typingTimeout = setTimeout(stopTyping, 500);
-    });
-
-    messageForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const message = messageInput.value.trim();
-      if (message) {
-        messageInput.value = "";
-        socket.emit("send_message", {
-          message,
-          receiverId: "<%- receiverId %>",
-          senderId: userId
-        });
-      }
     });
 
 
@@ -146,6 +203,12 @@
           </div>
         </div>` : ''}
       <div class="message-content">
+         ${(data.imageUrl) ? `
+              <div class="message-image-content">
+                <img src="${data.imageUrl}" alt="Sent Image" class="message-image">
+              </div>
+        ` : ''}
+        <div class="message-text-content">
         <p class="mb-1">
           ${data.newMessage}
         </p>
@@ -153,6 +216,7 @@
           ${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}          </small>
         </small>
       </div>
+      </div>        
     `;
       }
     });
@@ -162,7 +226,7 @@
 
       // Add the message ID to the container
       messageContainer.id = `message-container-${data.id}`;
-
+      // If there's an image URL, display the image
       if (data.senderId === userId) {
         messageContainer.classList.add("message", "sent", "p-2", "mb-2", "rounded");
 
@@ -201,11 +265,19 @@
             </div>
           </div>` : ''}
         <div class="message-content">
-          <p class="mb-1">
-            ${data.message}
-          </p>
-          <small class="text-muted">
-${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}          </small>
+           ${(data.imageUrl) ? `
+              <div class="message-image-content">
+                <img src="${data.imageUrl}" alt="Sent Image" class="message-image">
+              </div>
+        ` : ''}
+          <div class="message-text-content">
+            <p class="mb-1">
+              ${data.message}
+            </p>
+            <small class="text-muted">
+               ${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+            </small>
+          </div>
         </div>
       `;
 
@@ -215,12 +287,13 @@ ${data.created_at ? data.created_at : new Date().toLocaleTimeString('en-US', { h
 
     socket.on("message_deleted", (data) => {
       const messageContainer = document.getElementById(`message-container-${data.messageId}`);
+      console.log("data :",data);
       if (messageContainer) {
         // Update the message content to show it has been deleted
         messageContainer.innerHTML = `
       <div class="message-content">
-        <p class="mb-1 text-muted">
-          <i>This message has been deleted.</i>
+        <p class="mb-1 text-muted" style="font-style: italic;">
+          <i class="${data.senderId === receiverId ? 'text-white' : ''}">This message has been deleted.</i>
         </p>
       </div>
     `;

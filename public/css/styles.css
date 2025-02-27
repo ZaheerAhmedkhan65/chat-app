@@ -21,17 +21,34 @@
 }
 
 .message {
-    max-width: 70%;
+    max-width: 40%;
     width: fit-content;
     display: flex;
     align-items: center;
     gap: 5px;
 }
+.message-content{
+    display: flex;
+    flex-direction: column;
+}
+.message-image-content{
+    width: 100%; 
+    max-height:400px;
+    overflow: hidden;
+    padding: 5px 10px;
+}
+.message-image{
+    width: 100%;
+    height: fit-content;
+    border-radius:5px;
+}
 
-.message-content {
+.message-text-content {
     display: flex;
     align-items: end;
+    justify-content: space-between;
     gap: 10px;
+    width: 100%;
 }
 
 .sent {
@@ -148,4 +165,10 @@ textarea:focus {
     font-size: 11px;
     padding: 0;
     margin: 0;
+}
+
+@media (max-width: 768px) {
+    .deleted-message{
+        font-size: 10px;
+    }
 }
