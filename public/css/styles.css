@@ -1,3 +1,7 @@
+body{
+    user-select: none;
+    --webkit-user-select: none;
+}
 #chat-window {
     height: 500px;
     overflow-y: auto;
@@ -35,7 +39,6 @@
     width: 100%; 
     max-height:400px;
     overflow: hidden;
-    padding: 5px 10px;
 }
 .message-image{
     width: 100%;
@@ -54,7 +57,7 @@
 .sent {
     align-self: flex-end;
     margin: 0 0 0 auto;
-    background-color: #dcf8c6;
+    background-color:#B2A5FF;
     position: relative;
 }
 
@@ -70,27 +73,29 @@
     color: white !important;
 }
 
-.message p {
+/* .message-text-content p {
     margin: 0;
+} */
+
+.message-text-content small {
+    font-size: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.message small {
-    font-size: 10px;
-}
-
-.sent p::before {
+.sent .message-content::before {
     content: '';
     width: 12px;
     height: 10px;
     border-radius: 0px 0px 20px 0px;
-    background-color: #dcf8c6;
+    background-color:#B2A5FF;
     align-self: flex-end;
     position: absolute;
     top: 0px;
-    right: -6px
+    right: -6px;
 }
 
-.received p::before {
+.received .message-content::before {
     content: '';
     width: 12px;
     height: 10px;
@@ -167,8 +172,42 @@ textarea:focus {
     margin: 0;
 }
 
+.deleted-message{
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+}
+
+.friend-item:hover{
+    background-color: #e0e0e0;
+}
+
+#sidebar{
+    height: calc(100vh);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #0056b3 #e0e0e0;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+#sidebar::-webkit-scrollbar {
+    width: 2px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background-color: #0056b3;
+    border-radius: 10px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
 @media (max-width: 768px) {
     .deleted-message{
-        font-size: 10px;
+        font-size: 8px;
+    }
+    #chat-window-container{
+        height: calc(100vh - 20px);
     }
 }

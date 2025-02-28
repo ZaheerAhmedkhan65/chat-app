@@ -29,7 +29,6 @@ class Message {
     const [rows] = await db.execute('SELECT * FROM messages WHERE id = ?', [id]);
     return rows[0];
   };
-
 }
   
 module.exports = Message;

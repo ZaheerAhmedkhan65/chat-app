@@ -1,8 +1,9 @@
 const express = require('express');
 const User = require('../models/Users');
 const authenticate = require('../middleware/authMiddleware');
-const FriendRequest = require('../models/FriendRequest');
+const upload = require('../middleware/multer'); // Import the multer setup
 
+const FriendRequest = require('../models/FriendRequest');
 const router = express.Router();
 
 // Search users by username
@@ -23,6 +24,7 @@ router.get('/search', authenticate, async (req, res) => {
       let friendRequests = await FriendRequest.findByReceiverId(req.userId);
       let currentUser = await User.findByUserId(req.userId);
       const friends = await FriendRequest.getFriends(req.userId);
+
       if (users.length === 0) {
         console.log("No users found matching:", username);
       } else {
@@ -45,10 +47,9 @@ router.get('/search', authenticate, async (req, res) => {
   
       // Fetch friend requests for the logged-in user
       const friendRequests = await FriendRequest.findByReceiverId(req.userId);
-  
       // Fetch friends of the logged-in user
       const friends = await FriendRequest.getFriends(req.userId);
-  
+      console.log('Friends:', friends);
       // Render select-user page
       res.render('select-receiver', { 
         users, 
@@ -70,7 +71,6 @@ router.get('/search', authenticate, async (req, res) => {
           const friends = await FriendRequest.getFriends(req.userId);
           const friendRequests = await FriendRequest.findByReceiverId(req.userId);
           const users = await User.findAllExcept(req.userId);
-
           res.render('profile',{
             currentUser,
             friends,
@@ -130,6 +130,25 @@ router.post('/update-name/:userId',authenticate, async (req, res) => {
       res.status(500).json({ error: "Error updating user about" });
   }
 });
+
+router.post('/update-avatar/:userId', upload.single('avatar'), authenticate, async (req, res) => {
+  try {
+      console.log("File uploaded:", req.file); // Check if file is received
+      console.log("Request body:", req.body); // Check other form data
+
+      const { userId } = req.params;
+      const avatarPath = req.file ? `avatars/${req.file.filename}` : 'avatars/default.png';
+
+      await User.updateAvatar(userId, avatarPath);
+
+      res.json({ success: true, message: "Avatar updated successfully", avatarPath });
+  } catch (error) {
+      console.error("Error updating avatar:", error);
+      res.status(500).json({ error: "Error updating avatar" });
+  }
+});
+
+
 
 
 

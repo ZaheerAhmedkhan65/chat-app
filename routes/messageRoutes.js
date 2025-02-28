@@ -27,7 +27,6 @@ router.get('/chat', authenticate, async (req, res) => {
     // Fetch receiver's username
     const receiver = await User.findByUserId(receiverId);
     const receiverUsername = receiver ? receiver.username : 'Unknown';
-
     // Fetch all users except the logged-in user
     const users = await User.findAllExcept(req.userId);
     const friends = await FriendRequest.getFriends(req.userId);
@@ -40,6 +39,7 @@ router.get('/chat', authenticate, async (req, res) => {
     res.render('chat', {
       userId: req.userId,
       receiverId,
+      receiver,
       receiverUsername,
       messages: messages || [],
       token: req.query.token,

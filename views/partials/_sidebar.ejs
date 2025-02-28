@@ -56,11 +56,14 @@
   <hr class="mb-3">
   <h2 class="mb-2 lead fs-5 fw-bold">Chats</h2>
   <ul class="list-group" id="user-list">
-    <% friends.forEach(user=> { %>
-      <a href="/messages/chat?receiverId=<%= user.id %>"
-        class="btn text-start text-decoration-none lead bg-success-subtle mb-2">
-        <li class="btn p-0">
-          <%= user.username %>
+    <% friends.forEach(friend=> { %>
+      <a href="/messages/chat?receiverId=<%= friend.id %>"
+        class="rounded list-group-item-success list-group-item-action text-start text-decoration-none lead p-2 mb-1">
+        <li class="p-0 d-flex align-items-center gap-2">
+          <div class="rounded-circle overflow-hidden" style="width: 60px; height: 60px;">
+            <img src="/<%= friend.avatar_url %>" class="img-fluid rounded-circle" alt="<%= friend.username %>'s avatar" width="60px" height="60px">
+          </div>
+          <strong style="width:150px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start;" ><%= friend.username %></strong>
         </li>
       </a>
       <% }) %>

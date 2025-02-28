@@ -20,7 +20,7 @@ class User {
   }
 
   static async findAllExcept(userId) {
-    const [rows] = await db.execute('SELECT id, username FROM users WHERE id != ?', [userId]);
+    const [rows] = await db.execute('SELECT * FROM users WHERE id != ?', [userId]);
     return rows;
   }
 
@@ -46,6 +46,13 @@ class User {
   static async updateName(userId,name){
     const [rows] = await db.execute(
       'UPDATE users SET username = ? WHERE id = ?', [name, userId]
+    );
+    return rows;
+  };
+
+  static async updateAvatar(userId,avatar){
+    const [rows] = await db.execute(
+      'UPDATE users SET avatar_url = ? WHERE id = ?', [avatar, userId]
     );
     return rows;
   };

@@ -26,15 +26,19 @@
             <% } else { %>
               <ul class="list-unstyled">
                 <% users.forEach(user=> { %>
-                  <li class="user border p-3 mb-2 rounded bg-white">
-                    <p class="fs-5">
-                      <%= user.username %>
-                    </p>
-
+                  <li class="user border p-3 mb-2 rounded bg-white d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle overflow-hidden" style="width: 60px; height: 60px;">
+                      <img src="/<%= user.avatar_url %>" class="img-fluid rounded-circle" alt="<%= user.username %>'s avatar" width="60px" height="60px">
+                    </div>
+                    <div>
+                     <strong><%= user.username %></strong> 
+                    </div>
+                    </div>
                     <% if (friends.some(friend=> friend.id === user.id)) { %>
                       <!-- If Already Friends, show a link to chat -->
                       <a href="/messages/chat?receiverId=<%= user.id %>"
-                        class="btn btn-secondary">Chat with <%= user.username %></a>
+                        class="btn btn-secondary">Start Chat</a>
                       <% } else { %>
                         <!-- If not friends, show the send friend request form -->
                         <form action="/friends/send-request" method="POST" class="d-flex align-items-center">

@@ -74,7 +74,7 @@ class FriendRequest {
 
     static async getFriends(userId) {
         const query = `
-          SELECT u.id, u.username
+          SELECT u.id, u.username,u.avatar_url
           FROM users u
           JOIN friend_requests f ON (f.sender_id = u.id OR f.receiver_id = u.id)
           WHERE (f.sender_id = ? OR f.receiver_id = ?) AND f.status = 'accepted' AND u.id != ?;
