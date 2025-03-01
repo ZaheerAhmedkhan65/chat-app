@@ -29,57 +29,57 @@
         <div id="chat-window" class="flex-grow-1 overflow-auto p-3">
           <% messages.forEach(message=> { %>
             <% if(message.is_deleted===1) { %>
-              <div class="message  <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded">
-                <div class="message-content">
+              <div class="message">
+                <div class="message-content <%= message.sender_id === userId ? 'sent' : 'received' %> px-2 py-1 mb-2 rounded">
                   <p class="mb-1 text-muted deleted-message" style="font-style: italic;"> <i class="<%= message.sender_id === userId ? '' : 'text-white' %>">This message has been deleted.</i></p>
                 </div>
               </div>
               <% } else { %>
-                <div class="message <%= message.sender_id === userId ? 'sent' : 'received' %> p-2 mb-2 rounded"
+                <div class="message"
                   id="message-container-<%= message.id %>">
-                  <% if (message.sender_id===userId) { %>
-                    <div class="message-dropdown position-relative">
-                      <div class="btn-group dropstart">
-                        <button type="button" style="padding: 0 0 4px !important;"
-                          class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
-                          data-bs-toggle="dropdown" aria-expanded="false">
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li class="dropdown-item">
-                            <button class="dropdown-item"
-                              onclick="editMessage('<%= message.id %>','<%= token %>','<%= receiverId %>')">
-                              <i class="ri-pencil-line"></i> Edit
+                    <div class="message-content <%= message.sender_id === userId ? 'sent' : 'received' %> py-1 px-2 mb-2 rounded position-relative">
+                      <% if (message.sender_id===userId) { %>
+                        <div class="message-dropdown position-absolute">
+                          <div class="btn-group dropstart">
+                            <button type="button" style="padding: 0 0 4px !important;"
+                              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                              data-bs-toggle="dropdown" aria-expanded="false">
                             </button>
-                          </li>
-                          <li class="dropdown-item">
-                            <form id="deleteMessageForm" class="m-0 p-0">
-                              <input type="hidden" name="token" value="<%= token %>">
-                              <input type="hidden" name="receiverId" value="<%= receiverId %>">
-                              <button type="button" class="dropdown-item"
-                                onclick="deleteMessage('<%= message.id %>', '<%= token %>', '<%= receiverId %>')">
-                                <i class="ri-delete-bin-5-line"></i> Delete
-                              </button>
-                            </form>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                    <% } %>
-                      <div class="message-content">
-                        <% if (message.image_url) { %>
-                          <div class="message-image-content">
-                            <img src="<%= message.image_url %>" alt="Sent Image" class="message-image">
+                            <ul class="dropdown-menu">
+                              <li class="dropdown-item">
+                                <button class="dropdown-item"
+                                  onclick="editMessage('<%= message.id %>','<%= token %>','<%= receiverId %>')">
+                                  <i class="ri-pencil-line"></i> Edit
+                                </button>
+                              </li>
+                              <li class="dropdown-item">
+                                <form id="deleteMessageForm" class="m-0 p-0">
+                                  <input type="hidden" name="token" value="<%= token %>">
+                                  <input type="hidden" name="receiverId" value="<%= receiverId %>">
+                                  <button type="button" class="dropdown-item"
+                                    onclick="deleteMessage('<%= message.id %>', '<%= token %>', '<%= receiverId %>')">
+                                    <i class="ri-delete-bin-5-line"></i> Delete
+                                  </button>
+                                </form>
+                              </li>
+                            </ul>
                           </div>
-                          <% } %>
-                            <div class="message-text-content">
-                              <p class="mb-1">
-                                <%= message.message %>
-                              </p>
-                              <small class="text-muted">
-                                <%= message.created_at %>
-                              </small>
-                            </div>
-                      </div>
+                        </div>
+                        <% } %>
+                      <% if (message.image_url) { %>
+                        <div class="message-image-content">
+                          <img src="<%= message.image_url %>" alt="Sent Image" class="message-image">
+                        </div>
+                        <% } %>
+                          <div class="message-text-content">
+                            <p class="message-text-body">
+                              <%= message.message %>
+                            </p>
+                            <small class="text-muted">
+                              <%= message.created_at %>
+                            </small>
+                          </div>
+                    </div>
                 </div>
                 <% } %>
                   <% }) %>
@@ -181,8 +181,9 @@
       if (messageContainer) {
         // Update the message content
         messageContainer.innerHTML = `
+      <div class="message-content ${data.senderId === userId ? 'sent' : 'received'} px-2 py-1 mb-2 rounded position-relative">
         ${data.senderId === userId ? `
-        <div class="message-dropdown position-relative">
+        <div class="message-dropdown position-absolute">
           <div class="btn-group dropstart">
             <button type="button" style="padding: 0 0 4px !important;"
               class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
@@ -204,14 +205,13 @@
             </ul>
           </div>
         </div>` : ''}
-      <div class="message-content">
          ${(data.imageUrl) ? `
               <div class="message-image-content">
                 <img src="${data.imageUrl}" alt="Sent Image" class="message-image">
               </div>
         ` : ''}
         <div class="message-text-content">
-        <p class="mb-1">
+        <p class="message-text-body">
           ${data.newMessage}
         </p>
         <small class="text-muted">
@@ -228,19 +228,12 @@
 
       // Add the message ID to the container
       messageContainer.id = `message-container-${data.id}`;
-      // If there's an image URL, display the image
-      if (data.senderId === userId) {
-        messageContainer.classList.add("message", "sent", "p-2", "mb-2", "rounded");
-
-      } else {
-        messageContainer.classList.add("message", "received", "p-2", "mb-2", "rounded");
-      }
-
-
+      messageContainer.classList.add("message");
       // Render the message with the ID and timestamp
       messageContainer.innerHTML = `
-      ${data.senderId === userId ? `
-      <div class="message-dropdown position-relative">
+        <div class="message-content ${data.senderId === userId ? 'sent' : 'received'} px-2 py-1 mb-2 rounded position-relative">
+          ${data.senderId === userId ? `
+      <div class="message-dropdown position-absolute">
             <div class="btn-group dropstart">
               <button type="button" style="padding: 0 0 4px !important;"
                 class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
@@ -266,14 +259,13 @@
               </ul>
             </div>
           </div>` : ''}
-        <div class="message-content">
            ${(data.imageUrl) ? `
               <div class="message-image-content">
                 <img src="${data.imageUrl}" alt="Sent Image" class="message-image">
               </div>
         ` : ''}
           <div class="message-text-content">
-            <p class="mb-1">
+            <p class="message-text-body">
               ${data.message}
             </p>
             <small class="text-muted">
@@ -293,9 +285,9 @@
       if (messageContainer) {
         // Update the message content to show it has been deleted
         messageContainer.innerHTML = `
-      <div class="message-content">
-        <p class="mb-1 text-muted" style="font-style: italic;">
-          <i class="${data.senderId === receiverId ? 'text-white' : ''}">This message has been deleted.</i>
+      <div class="message-content ${data.receiverId === userId ? 'received' : 'sent'}  px-2 py-1 mb-2 rounded">
+        <p class="mb-1 text-muted deleted-message" style="font-style: italic;">
+          <i class="${data.receiverId === userId ? 'text-white' : ''}">This message has been deleted.</i>
         </p>
       </div>
     `;

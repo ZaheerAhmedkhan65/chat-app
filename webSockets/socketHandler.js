@@ -62,6 +62,7 @@ module.exports = (io) => {
         // Broadcast the deleted message ID to all clients
         io.emit("message_deleted", {
           messageId: data.messageId,
+          receiverId: data.receiverId
         });
       } catch (err) {
         console.error("Database query error:", err);

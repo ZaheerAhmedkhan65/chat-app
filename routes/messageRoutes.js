@@ -39,6 +39,7 @@ router.get('/chat', authenticate, async (req, res) => {
     res.render('chat', {
       userId: req.userId,
       receiverId,
+      senderId:req.userId,
       receiver,
       receiverUsername,
       messages: messages || [],
