@@ -3,14 +3,14 @@
 <div class="container-fluid vh-100 d-flex flex-column">
   <div class="row flex-grow-1">
     <!-- Sidebar (Visible on Mobile, Hidden on Large Screens) -->
-    <div id="sidebar" class="col-12 col-lg-3 bg-primary p-3">
+    <div id="sidebar" class="col-12 col-lg-3 bg-secondary p-3">
       <%- include('partials/_sidebar', { users, token, friendRequests }); %>
     </div>
 
     <!-- Main Content Area (Hidden on Mobile, Visible on Large Screens) -->
     <div class="col-lg-9 d-none d-lg-block d-flex flex-column bg-light p-0">
       <!-- Header Section -->
-      <div class="bg-primary py-2 px-3 text-white">
+      <div class="bg-secondary py-2 px-3 text-white">
         <h1 class="lead fs-4 fw-bold mb-0">Select a User to Chat With</h1>
       </div>
 
@@ -21,5 +21,23 @@
     </div>
   </div>
 </div>
+<script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io({query: {userId: "<%= userId %>"}});
+    const userId = "<%= userId %>";
+    const token = "<%= token %>";
+    
+
+    socket.on("user_online", (data) => {
+      console.log("User online status:", data.userId);
+    });
+
+    socket.on("user_offline", (data) => {
+      console.log("User online status:", data.userId);
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      socket.emit("user_connect",{userId});
+    });
+  </script> 
 
 <%- include('partials/_footer') %>

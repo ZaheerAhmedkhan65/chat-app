@@ -29,7 +29,7 @@ const login = async (req, res) => {
 
     // Generate a JWT token with a short expiry time (e.g., 1 hour)
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
+    
     // Set the token in an HTTP-only cookie that expires in 1 week
     res.cookie('token', token, {
       httpOnly: true, // Prevent JavaScript access to the cookie
@@ -38,6 +38,9 @@ const login = async (req, res) => {
       sameSite: 'Strict', // Prevent CSRF attacks
     });
 
+    // Update user status to online
+    await User.updateOnlineStatus(user.id, 1);
+
     res.redirect('/users/select-receiver');
   } catch (error) {
     console.error('Error during login:', error);
@@ -45,10 +48,21 @@ const login = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  // Clear the token cookie
-  res.clearCookie('token');
-  res.redirect('/auth/login');
+const logout = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      await User.updateOnlineStatus(decoded.userId, 0); // Set is_online to 0 (false)
+    }
+
+    res.clearCookie('token');
+    res.redirect('/auth/login');
+  } catch (error) {
+    console.error('Error during logout:', error);
+    res.status(500).json({ error: 'Error during logout' });
+  }
 };
+
 
 module.exports = { signup, login, logout };

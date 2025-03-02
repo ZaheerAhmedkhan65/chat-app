@@ -3,35 +3,37 @@
   <div class="container-fluid vh-100 d-flex flex-column">
     <div class="row flex-grow-1">
       <!-- Sidebar (Hidden on Mobile) -->
-      <div id="sidebar" class="col-lg-3 d-none d-lg-block bg-primary p-3">
+      <div id="sidebar" class="col-lg-3 d-none d-lg-block bg-secondary p-3">
         <%- include('partials/_sidebar', { users, token , friendRequests }); %>
       </div>
 
       <!-- Chat Window -->
-      <div id="chat-window-container" class="col-lg-9 d-flex flex-column bg-light p-0">
+      <div id="chat-window-container" class="col-lg-9 d-flex flex-column p-0">
         <!-- Chat Header (Fixed) -->
-        <div class="bg-primary p-2 d-flex gap-2 text-white">
+        <div class="bg-secondary p-2 d-flex gap-2 text-white">
           <div class="d-flex align-items-center gap-2">
-          <a class="d-block d-lg-none text-white text-decoration-none" href="/users/select-receiver">
-            <i class="ri-arrow-left-line"></i>
-          </a>
+            <a class="d-block d-lg-none text-white text-decoration-none" href="/users/select-receiver">
+              <i class="ri-arrow-left-line"></i>
+            </a>
             <div class="rounded-circle overflow-hidden border border-1" style="width: 40px; height: 40px;">
               <img src="/<%=receiver.avatar_url%>" alt="<%=receiver.username%>'s avatar" class="img-fluid rounded-circle" width="40px" height="40px">
             </div>
-            <strong>
-              <%= receiverUsername %>
-            </strong>
-            <div class="typing"></div>
+            <div class="d-flex flex-column">
+              <strong class="m-0 p-0">
+                <%= receiverUsername %>
+              </strong>
+              <div class="user-connection-status"><%= receiver.is_online ? 'Online' : 'Offline' %></div>
+            </div>
           </div>
         </div>
 
         <!-- Chat Messages (Scrollable) -->
-        <div id="chat-window" class="flex-grow-1 overflow-auto p-3">
+        <div id="chat-window" class="flex-grow-1 overflow-auto">
           <% messages.forEach(message=> { %>
             <% if(message.is_deleted===1) { %>
               <div class="message">
                 <div class="message-content <%= message.sender_id === userId ? 'sent' : 'received' %> px-2 py-1 mb-2 rounded">
-                  <p class="mb-1 text-muted deleted-message" style="font-style: italic;"> <i class="<%= message.sender_id === userId ? '' : 'text-white' %>">This message has been deleted.</i></p>
+                  <p class="mb-1 text-muted deleted-message" style="font-style: italic;"> <i class="text-white">This message has been deleted.</i></p>
                 </div>
               </div>
               <% } else { %>
@@ -42,8 +44,9 @@
                         <div class="message-dropdown position-absolute">
                           <div class="btn-group dropstart">
                             <button type="button" style="padding: 0 0 4px !important;"
-                              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle"
                               data-bs-toggle="dropdown" aria-expanded="false">
+                              <i class="ri-arrow-down-wide-line"></i>
                             </button>
                             <ul class="dropdown-menu">
                               <li class="dropdown-item">
@@ -83,10 +86,13 @@
                 </div>
                 <% } %>
                   <% }) %>
+                  <div onclick="bottomScroll()" class="btn bg-primary border border-2 border-dark" id="bottom-scroll-button">
+                    <i class="ri-arrow-down-line fw-bold"></i>
+                  </div>
         </div>
 
         <!-- Message Form (Fixed at Bottom) -->
-        <div class="bg-primary p-2 position-relative">
+        <div class="bg-secondary px-2 position-relative">
           <form class="d-flex gap-2 align-items-center" id="message-form">
             <!-- Add a file input for image uploads -->
             <input type="file" id="file-input" accept="image/*" style="display: none;">
@@ -95,9 +101,11 @@
             </button>
             <input type="hidden" name="receiverId" value="<%= receiverId %>">
             <input type="hidden" name="token" value="<%= token %>">
-            <textarea name="message" rows="1" id="message" placeholder="Type your message..."
+            <textarea name="message" rows="1" id="message" placeholder="Type a message"
               class="form-control outline-0 border-0" required></textarea>
-            <button type="submit" class="btn">Send</button>
+            <div class="btn rounded-0">
+              <button type="submit" class="bg-transparent border-0" style="transform: rotate(45deg);"><i class="bi bi-send fs-4"></i></button>
+            </div>
           </form>
         </div>
       </div>
@@ -105,11 +113,12 @@
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
+    const socket = io({query: {userId: "<%= userId %>"}});
     const userId = "<%= userId %>";
+    const receiver = "<%= receiver %>";
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message");
-    const typingContainer = document.querySelector(".typing");
+    const userConnectionStatus = document.querySelector(".user-connection-status");
     const fileInput = document.getElementById("file-input");
     const fileUploadButton = document.getElementById("file-upload-button");
     let typingTimeout;
@@ -163,6 +172,8 @@
       fileInput.value = "";
     });
 
+    
+
 
     function stopTyping() {
       socket.emit("stop typing");
@@ -186,8 +197,9 @@
         <div class="message-dropdown position-absolute">
           <div class="btn-group dropstart">
             <button type="button" style="padding: 0 0 4px !important;"
-              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+              class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle"
               data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="ri-arrow-down-wide-line"></i>
             </button>
             <ul class="dropdown-menu">
               <li class="dropdown-item">
@@ -236,8 +248,9 @@
       <div class="message-dropdown position-absolute">
             <div class="btn-group dropstart">
               <button type="button" style="padding: 0 0 4px !important;"
-                class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+                class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle"
                 data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="ri-arrow-down-wide-line"></i>
               </button>
               <ul class="dropdown-menu">
                 <li class="dropdown-item">
@@ -287,7 +300,7 @@
         messageContainer.innerHTML = `
       <div class="message-content ${data.receiverId === userId ? 'received' : 'sent'}  px-2 py-1 mb-2 rounded">
         <p class="mb-1 text-muted deleted-message" style="font-style: italic;">
-          <i class="${data.receiverId === userId ? 'text-white' : ''}">This message has been deleted.</i>
+          <i class="text-white">This message has been deleted.</i>
         </p>
       </div>
     `;
@@ -301,11 +314,25 @@
     });
 
     socket.on("typing", () => {
-      typingContainer.textContent = "Typing . . .";
+      userConnectionStatus.textContent = "Typing . . .";
+    });
+
+    socket.on("user_online", (data) => {
+      console.log("user data :",data.is_online);
+      userConnectionStatus.textContent = `${ data.is_online ? 'Online' : 'Offline' }`;
+    });
+
+    socket.on("user_offline", (data) => {
+      console.log("user offline",data.updated_at);
+      userConnectionStatus.textContent = `${data.is_online ? 'Online' : 'Offline' }`;
     });
 
     socket.on("stop typing", () => {
-      typingContainer.textContent = "";
+      userConnectionStatus.textContent = "<%= receiver.is_online ? 'Online' : 'Offline' %>";
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      socket.emit("user_connect",{userId});
     });
   </script>
   <script src="/js/chat/scrollToBottom.js"></script>

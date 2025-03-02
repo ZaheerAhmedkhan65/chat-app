@@ -56,6 +56,7 @@ router.get('/search', authenticate, async (req, res) => {
         currentUser,
         friendRequests, 
         friends,
+        userId:req.userId,
         token: req.query.token
       });
   

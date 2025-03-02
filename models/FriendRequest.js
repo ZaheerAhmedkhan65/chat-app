@@ -22,7 +22,7 @@ class FriendRequest {
 
     static async findByReceiverId(receiverId) {
         const [rows] = await db.execute(
-            `SELECT fr.*, u.username as sender_username 
+            `SELECT fr.*, u.username as sender_username, u.avatar_url
        FROM friend_requests fr
        JOIN users u ON fr.sender_id = u.id
        WHERE fr.receiver_id = ? AND fr.status = 'pending'`,

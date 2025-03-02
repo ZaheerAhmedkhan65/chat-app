@@ -1,12 +1,12 @@
 <%- include('partials/_header', { title: 'Log In' }) %>
-  <div class="container-fluid d-flex  flex-column justify-content-center bg-primary vh-100">
+  <div class="container vh-100"> <!--bg-primary-->
     <div class="row flex-grow-1 mt-5">
        <div class="col-lg-6">
-        <h1 class="text-start">Welcome to the Whatsupp</h1>
+        <h1 class="text-start">Welcome to the <span class="text-primary">eChat</span></h1>
         <h3 class="text-start">Get Started by signing up</h3>
         <p class="text-start">Sign up to create an account and start chatting with your friends.</p>
         <div class="text-center">
-          <img src="/img/Whatsupp.png" alt="WhatsApp Image" class="img-fluid" width="40%">
+          <img src="/img/logo/logo.png" alt="logo" class="img-fluid" width="40%">
         </div>
        </div>
        <div class="col-lg-6">
@@ -18,9 +18,9 @@
          <label for="password" class="form-label">Password</label>
          <input type="password" id="password" name="password" class="form-control" required>
          
-         <button type="submit" class="btn btn-success my-3">Sign Up</button>
+         <button type="submit" class="btn btn-primary my-3">Sign Up</button>
        </form>
-       <a href="/auth/login" class="text-decoration-none m-2 text-dark">Already have an account? <span class="text-success fw-bold">Log In</span></a>
+       <a href="/auth/login" class="text-decoration-none m-2 text-dark">Already have an account? <span class="text-primary fw-bold">Log In</span></a>
       </div>
     </div>
   </div>

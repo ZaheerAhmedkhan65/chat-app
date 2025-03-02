@@ -24,7 +24,7 @@ function editMessage(messageId, receiverId) {
         <input type="text" name="newMessage" id="edit-message-input-${messageId}" value="${messageContent}" class="form-control" required>
         <input type="hidden" name="receiverId" value="${receiverId}" class="d-none">
         <div class="d-flex gap-2 align-items-center justify-content-end">
-          <button type="submit" class="btn btn-success btn-sm mt-1">Update</button>
+          <button type="submit" class="btn btn-primary btn-sm mt-1">Update</button>
           <button type="button" class="btn btn-secondary btn-sm mt-1" onclick="cancelEdit('${messageId}')">Cancel</button>
         </div>
       </form>
@@ -70,8 +70,9 @@ function cancelEdit(messageId) {
     <div class="message-dropdown position-absolute">
         <div class="btn-group dropstart">
           <button type="button" style="padding: 0 0 4px !important;"
-            class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle dropdown-toggle"
+            class="btn btn-sm bg-transparent p-0 border-0 m-0 rounded-circle"
             data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="ri-arrow-down-wide-line"></i>
           </button>
           <ul class="dropdown-menu">
             <li class="dropdown-item">

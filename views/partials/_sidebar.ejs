@@ -1,6 +1,6 @@
 <div class="px-2 pb-2">
   <div class="d-flex align-items-center justify-content-between">
-    <img src="/img/Whatsupp.png" alt="Whatsupp" class="img-fluid mb-1" width="20%">
+    <h2 class="mb-2 lead fs-5 fw-bold text-white">Chats</h2>
     <div class="dropdown">
       <button class=" border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="ri-edit-box-line fs-4 text-white"></i>
@@ -10,28 +10,33 @@
       </button>
       <ul class="dropdown-menu" style="width: 300px; min-width: fit-content;">
         <li>
-          <h4 class="dropdown-item">
-            <%= currentUser.username %>
-          </h4>
+            <h5 class="fw-bold px-3">You</h5>
+            <a href="/users/profile" class="dropdown-item d-flex align-items-center gap-2">
+              <img src="/<%= currentUser.avatar_url %>" alt="<%= currentUser.username %>'s avatar" class="img-fluid rounded-circle" width="35px" height="30px">
+              <h4>
+                <%= currentUser.username %>
+              </h4>
+            </a>
         </li>
-        <li>
-          <a href="/users/profile" class="dropdown-item">View profile</a>
-        </li>
+        
         <!-- Pending Friend Requests -->
         <% if(friendRequests.length> 0) {%>
           <li>
-            <h2 class="mb-2 lead dropdown-item fw-bold">Pending Requests</h2>
+            <h2 class="mb-2 lead px-3 fw-bold">Pending Requests</h2>
             <ul class="list-group" id="friend-requests">
               <% friendRequests.forEach(request=> { %>
                 <li style="cursor: default;" class="dropdown-item d-flex align-items-center justify-content-between gap-2 ">
-                  <h4 class="lead fw-bold">
+                  <div class="d-flex align-items-center justify-content-center gap-2">
+                  <img src="/<%= request.avatar_url %>" class="img-fluid rounded-circle" alt="<%= request.avatar_url %>'s avatar" width="35px" height="30px">
+                  <p class="fw-bold m-0" style="font-size: 12px;">
                       <%= request.sender_username %>
-                  </h4>
+                  </p>
+                  </div>
                   <div class="d-flex gap-2 align-items-center">
                     <form action="/friends/accept-request" method="POST" class="m-0 p-0">
                       <input type="hidden" name="requestId" value="<%= request.id %>">
                       <input type="hidden" name="token" value="<%= token %>">
-                      <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                      <button type="submit" class="btn btn-sm btn-primary">Accept</button>
                     </form>
                     <form action="/friends/reject-request" method="POST" class="m-0 p-0">
                       <input type="hidden" name="requestId" value="<%= request.id %>">
@@ -51,19 +56,18 @@
   <!-- Search Bar -->
   <form action="/users/search" method="GET" class="mb-3 d-flex align-items-center gap-2">
     <input type="text" name="username" placeholder="Search by username" class="form-control" required>
-    <button type="submit" class="btn btn btn-success">Search</button>
+    <button type="submit" class="btn btn btn-primary">Search</button>
   </form>
   <hr class="mb-3">
-  <h2 class="mb-2 lead fs-5 fw-bold">Chats</h2>
   <ul class="list-group" id="user-list">
     <% friends.forEach(friend=> { %>
       <a href="/messages/chat?receiverId=<%= friend.id %>"
-        class="rounded list-group-item-success list-group-item-action text-start text-decoration-none lead p-2 mb-1">
+        class="rounded list-group-item-primary list-group-item-action text-start text-decoration-none lead p-2 mb-1">
         <li class="p-0 d-flex align-items-center gap-2">
           <div class="rounded-circle overflow-hidden" style="width: 60px; height: 60px;">
             <img src="/<%= friend.avatar_url %>" class="img-fluid rounded-circle" alt="<%= friend.username %>'s avatar" width="60px" height="60px">
           </div>
-          <strong style="width:150px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start;" ><%= friend.username %></strong>
+          <strong style="width:170px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start;" class="text-white" ><%= friend.username %></strong>
         </li>
       </a>
       <% }) %>

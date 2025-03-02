@@ -56,6 +56,10 @@ class User {
     );
     return rows;
   };
+
+  static async updateOnlineStatus(userId, isOnline) {
+    await db.execute('UPDATE users SET is_online = ?,updated_at = NOW() WHERE id = ?', [isOnline, userId]);
+  }
   
 }
 
