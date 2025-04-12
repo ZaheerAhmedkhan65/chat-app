@@ -23,6 +23,29 @@ const getMessages = async (req, res) => {
     }
 };
 
+// const getLastMessages = async (req, res) => {
+//     const userId = req.userId; // Assuming the logged-in user's ID is available
+
+//     try {
+//         const lastMessages = await Message.getLastMessages(userId);
+        
+//         // Format the created_at timestamp
+//         const formattedMessages = lastMessages.map(msg => ({
+//             ...msg,
+//             created_at: new Date(msg.created_at).toLocaleTimeString('en-US', {
+//                 hour: 'numeric',
+//                 minute: '2-digit',
+//                 hour12: true,
+//             }),
+//         }));
+
+//         res.json(formattedMessages);
+//     } catch (error) {
+//         console.error('Error fetching last messages:', error);
+//         res.status(500).json({ error: 'Error fetching last messages' });
+//     }
+// };
+
 const deleteMessage = async (req, res) => {
     const { messageId } = req.params;
     const { token, receiverId } = req.body;
@@ -44,4 +67,4 @@ const deleteMessage = async (req, res) => {
 
 
 
-module.exports = {getMessages, deleteMessage };
+module.exports = {getMessages, deleteMessage};

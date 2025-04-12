@@ -28,7 +28,7 @@ const login = async (req, res) => {
     }
 
     // Generate a JWT token with a short expiry time (e.g., 1 hour)
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
     // Set the token in an HTTP-only cookie that expires in 1 week
     res.cookie('token', token, {
@@ -65,4 +65,32 @@ const logout = async (req, res) => {
 };
 
 
-module.exports = { signup, login, logout };
+const refreshToken = async (req, res) => {
+    const token = req.cookies.token;
+    
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+        // Issue a new token with renewed expiration
+        const newToken = jwt.sign(
+            { userId: decoded.userId, username: decoded.username }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
+        
+        res.cookie('token', newToken, { 
+            httpOnly: true, 
+            secure: true, 
+            sameSite: 'strict' 
+        });
+        console.log("token newed :",newToken)
+        res.json({ success: true });
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
+module.exports = { signup, login, logout, refreshToken };

@@ -2,8 +2,15 @@ body{
     user-select: none;
     --webkit-user-select: none;
 }
-#chat-window {
-    height: 500px;
+
+
+#chat-window-gradient {
+    background-image: linear-gradient(to bottom right, rgba(255, 0, 0, 0.715),rgba(255, 166, 0, 0.689),rgba(255, 255, 0, 0.616),rgba(0, 128, 0, 0.536),rgba(0, 0, 255, 0.628),rgba(76, 0, 130, 0.479),rgba(238, 130, 238, 0.734));
+
+}
+
+#chat-window{
+    height: calc(100vh - 112px);
     overflow-y: auto;
     scrollbar-width: none;
     z-index: 0;
@@ -11,8 +18,9 @@ body{
     padding: 30px 55px 10px;
     position: relative;
     background-image: url('/img/chat_bg.png');
+    background-size: cover;
+    background-repeat: no-repeat;
 }
-
 /* Webkit browsers (Chrome, Safari, Edge) */
 #chat-window::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
@@ -159,7 +167,19 @@ body{
     top: 0px;
     left: -6px
 }
+.sidebar-last-message{
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: 0.8;
+}
 
+.sidebar-last-message-time{
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: 0.8;
+}
 textarea {
     resize: none !important;
     --appearance: none;

@@ -28,7 +28,8 @@
         </div>
 
         <!-- Chat Messages (Scrollable) -->
-        <div id="chat-window" class="flex-grow-1 overflow-auto">
+        <div id="chat-window-gradient" class="flex-grow-1 overflow-auto">
+          <div id="chat-window">
           <% messages.forEach(message=> { %>
             <% if(message.is_deleted===1) { %>
               <div class="message">
@@ -89,6 +90,7 @@
                   <div onclick="bottomScroll()" class="btn bg-primary border border-2 border-dark" id="bottom-scroll-button">
                     <i class="ri-arrow-down-line fw-bold"></i>
                   </div>
+          </div>
         </div>
 
         <!-- Message Form (Fixed at Bottom) -->
@@ -319,7 +321,10 @@
 
     socket.on("user_online", (data) => {
       console.log("user data :",data.is_online);
-      userConnectionStatus.textContent = `${ data.is_online ? 'Online' : 'Offline' }`;
+      console.log("user id from socket",data.userId);
+      console.log("user id locally",userId);
+      const userOnline = data.userId === userId && data.is_online === 1;
+      userConnectionStatus.textContent = `${userOnline ? 'Online' : 'Offline' }`;
     });
 
     socket.on("user_offline", (data) => {

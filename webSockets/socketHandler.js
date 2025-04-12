@@ -5,13 +5,17 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log("A user connected with ID:", socket.id);
     let userId;
+    let token;
     socket.on("user_connect", async (data) => {
       try {
+        token = socket.handshake.query.token;
+        if(token){
         // Update the user's is_online status
         await Users.updateOnlineStatus(data.userId, 1);
         console.log("User online status updated:", data.userId);
         // Notify other users about the online status change
         io.emit("user_online", { userId: data.userId, is_online: 1 });
+        }
       } catch (err) {
         console.error("Invalid token:", err);
       }

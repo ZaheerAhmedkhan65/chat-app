@@ -23,9 +23,11 @@
 </div>
 <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io({query: {userId: "<%= userId %>"}});
+    const socket = io({query: {userId: "<%= userId %>", token: "<%= token %>"}});
     const userId = "<%= userId %>";
     const token = "<%= token %>";
+
+    console.log("token in select receiver",token);
     
 
     socket.on("user_online", (data) => {
@@ -36,7 +38,7 @@
       console.log("User online status:", data.userId);
     });
     document.addEventListener("DOMContentLoaded", () => {
-      socket.emit("user_connect",{userId});
+      socket.emit("user_connect",{userId, token});
     });
   </script> 
 

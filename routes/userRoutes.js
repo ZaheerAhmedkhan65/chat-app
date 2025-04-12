@@ -2,8 +2,8 @@ const express = require('express');
 const User = require('../models/Users');
 const authenticate = require('../middleware/authMiddleware');
 const upload = require('../middleware/multer'); // Import the multer setup
-
 const FriendRequest = require('../models/FriendRequest');
+const Message = require('../models/Message');
 const router = express.Router();
 
 // Search users by username
@@ -24,14 +24,22 @@ router.get('/search', authenticate, async (req, res) => {
       let friendRequests = await FriendRequest.findByReceiverId(req.userId);
       let currentUser = await User.findByUserId(req.userId);
       const friends = await FriendRequest.getFriends(req.userId);
-
+      const lastMessages = await Message.getLastMessages(req.userId);
+      const formattedLastMessages = lastMessages.map(message => ({
+        ...message,
+        created_at: new Date(message.created_at).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }),
+    }));
       if (users.length === 0) {
         console.log("No users found matching:", username);
       } else {
         console.log("Users found:", users);
       }
   
-      res.render('search-results', { users , token: req.query.token, userId: req.userId, friends, friendRequests, currentUser });
+      res.render('search-results', { users , token: req.query.token,lastMessages: formattedLastMessages, userId: req.userId, friends, friendRequests, currentUser });
     } catch (error) {
       console.error('Error searching users:', error);
       res.status(500).json({ error: 'Error searching users' });
@@ -49,13 +57,24 @@ router.get('/search', authenticate, async (req, res) => {
       const friendRequests = await FriendRequest.findByReceiverId(req.userId);
       // Fetch friends of the logged-in user
       const friends = await FriendRequest.getFriends(req.userId);
-      console.log('Friends:', friends);
+      const lastMessages = await Message.getLastMessages(req.userId);
+      const formattedLastMessages = lastMessages.map(message => ({
+        ...message,
+        created_at: new Date(message.created_at).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        }),
+    }));
+      console.log('last messages:', lastMessages);
+      console.log('token:', req.query.token);
       // Render select-user page
       res.render('select-receiver', { 
         users, 
         currentUser,
         friendRequests, 
         friends,
+        lastMessages: formattedLastMessages,
         userId:req.userId,
         token: req.query.token
       });
@@ -72,11 +91,21 @@ router.get('/search', authenticate, async (req, res) => {
           const friends = await FriendRequest.getFriends(req.userId);
           const friendRequests = await FriendRequest.findByReceiverId(req.userId);
           const users = await User.findAllExcept(req.userId);
+          const lastMessages = await Message.getLastMessages(req.userId);
+          const formattedLastMessages = lastMessages.map(message => ({
+            ...message,
+            created_at: new Date(message.created_at).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+            }),
+        }));
           res.render('profile',{
             currentUser,
             friends,
             friendRequests,
             users,
+            lastMessages:formattedLastMessages,
             token: req.query.token,
             userId:req.userId
           })

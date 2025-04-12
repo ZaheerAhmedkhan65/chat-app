@@ -4,33 +4,38 @@
     <div class="dropdown">
       <button class=" border-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="ri-edit-box-line fs-4 text-white"></i>
-        <% if(friendRequests.length > 0) {%>
-        <i class="alertBox"><%= friendRequests.length %></i>
-        <%}%>
+        <% if(friendRequests.length> 0) {%>
+          <i class="alertBox">
+            <%= friendRequests.length %>
+          </i>
+          <%}%>
       </button>
       <ul class="dropdown-menu" style="width: 300px; min-width: fit-content;">
         <li>
-            <h5 class="fw-bold px-3">You</h5>
-            <a href="/users/profile" class="dropdown-item d-flex align-items-center gap-2">
-              <img src="/<%= currentUser.avatar_url %>" alt="<%= currentUser.username %>'s avatar" class="img-fluid rounded-circle" width="35px" height="30px">
-              <h4>
-                <%= currentUser.username %>
-              </h4>
-            </a>
+          <h5 class="fw-bold px-3">You</h5>
+          <a href="/users/profile" class="dropdown-item d-flex align-items-center gap-2">
+            <img src="/<%= currentUser.avatar_url %>" alt="<%= currentUser.username %>'s avatar"
+              class="img-fluid rounded-circle" width="35px" height="30px">
+            <h4>
+              <%= currentUser.username %>
+            </h4>
+          </a>
         </li>
-        
+
         <!-- Pending Friend Requests -->
         <% if(friendRequests.length> 0) {%>
           <li>
             <h2 class="mb-2 lead px-3 fw-bold">Pending Requests</h2>
             <ul class="list-group" id="friend-requests">
               <% friendRequests.forEach(request=> { %>
-                <li style="cursor: default;" class="dropdown-item d-flex align-items-center justify-content-between gap-2 ">
+                <li style="cursor: default;"
+                  class="dropdown-item d-flex align-items-center justify-content-between gap-2 ">
                   <div class="d-flex align-items-center justify-content-center gap-2">
-                  <img src="/<%= request.avatar_url %>" class="img-fluid rounded-circle" alt="<%= request.avatar_url %>'s avatar" width="35px" height="30px">
-                  <p class="fw-bold m-0" style="font-size: 12px;">
+                    <img src="/<%= request.avatar_url %>" class="img-fluid rounded-circle"
+                      alt="<%= request.avatar_url %>'s avatar" width="35px" height="30px">
+                    <p class="fw-bold m-0" style="font-size: 12px;">
                       <%= request.sender_username %>
-                  </p>
+                    </p>
                   </div>
                   <div class="d-flex gap-2 align-items-center">
                     <form action="/friends/accept-request" method="POST" class="m-0 p-0">
@@ -60,16 +65,32 @@
   </form>
   <hr class="mb-3">
   <ul class="list-group" id="user-list">
-    <% friends.forEach(friend=> { %>
+    <% friends.forEach(friend=> {
+      let lastMessage = lastMessages.find(msg => msg.sender_id === friend.id || msg.receiver_id === friend.id);
+      %>
       <a href="/messages/chat?receiverId=<%= friend.id %>"
         class="rounded list-group-item-primary list-group-item-action text-start text-decoration-none lead p-2 mb-1">
-        <li class="p-0 d-flex align-items-center gap-2">
-          <div class="rounded-circle overflow-hidden" style="width: 60px; height: 60px;">
-            <img src="/<%= friend.avatar_url %>" class="img-fluid rounded-circle" alt="<%= friend.username %>'s avatar" width="60px" height="60px">
+        <li class="p-0 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle overflow-hidden" style="width: 60px; height: 60px;">
+              <img src="/<%= friend.avatar_url %>" class="img-fluid rounded-circle"
+                alt="<%= friend.username %>'s avatar" width="60px" height="60px">
+            </div>
+            <strong
+              style="width:170px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start;"
+              class="text-white">
+                <%= friend.username %>
+                <p class="text-white sidebar-last-message">
+                  <%= lastMessage ? lastMessage.message : "" %>
+                </p>
+            </strong>
           </div>
-          <strong style="width:170px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start;" class="text-white" ><%= friend.username %></strong>
+          <span class="text-white sidebar-last-message-time">
+            <%= lastMessage ? lastMessage.created_at : "" %>
+          </span>
         </li>
       </a>
-      <% }) %>
+      <% }); %>
   </ul>
+
 </div>

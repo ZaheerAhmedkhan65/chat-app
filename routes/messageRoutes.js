@@ -4,6 +4,7 @@ const { getMessages,deleteMessage} = require('../controllers/messageController')
 const User = require('../models/Users');
 const Friend = require('../models/Friend');
 const FriendRequest = require('../models/FriendRequest');
+const Message = require('../models/Message');
 
 const router = express.Router();
 
@@ -23,7 +24,15 @@ router.get('/chat', authenticate, async (req, res) => {
 
     // Fetch messages
     const messages = await getMessages(req, res);
-   
+    const lastMessages = await Message.getLastMessages(req.userId);
+    const formattedLastMessages = lastMessages.map(message => ({
+      ...message,
+      created_at: new Date(message.created_at).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+      }),
+  }));
     // Fetch receiver's username
     const receiver = await User.findByUserId(receiverId);
     const receiverUsername = receiver ? receiver.username : 'Unknown';
@@ -31,7 +40,7 @@ router.get('/chat', authenticate, async (req, res) => {
     const users = await User.findAllExcept(req.userId);
     const friends = await FriendRequest.getFriends(req.userId);
     const currentUser = await User.findByUserId(req.userId);
-
+    console.log("last messages:", lastMessages);
     // Fetch pending friend requests
     const friendRequests = await FriendRequest.findByReceiverId(req.userId);
 
@@ -43,6 +52,7 @@ router.get('/chat', authenticate, async (req, res) => {
       receiver,
       receiverUsername,
       messages: messages || [],
+      lastMessages: formattedLastMessages || [],
       token: req.query.token,
       friends,
       users,

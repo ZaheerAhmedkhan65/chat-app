@@ -29,6 +29,24 @@ class Message {
     const [rows] = await db.execute('SELECT * FROM messages WHERE id = ?', [id]);
     return rows[0];
   };
+
+  static async getLastMessages(userId) {
+    const [rows] = await db.execute(
+        `SELECT m.*, u.username as sender_username
+         FROM messages m
+         JOIN users u ON m.sender_id = u.id
+         WHERE m.id IN (
+             SELECT MAX(id) 
+             FROM messages 
+             WHERE sender_id = ? OR receiver_id = ? 
+             GROUP BY LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)
+         )
+         ORDER BY m.created_at DESC`,
+        [userId, userId]
+    );
+    return rows;
+}
+
 }
   
 module.exports = Message;
