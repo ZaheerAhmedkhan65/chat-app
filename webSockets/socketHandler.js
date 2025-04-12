@@ -4,50 +4,53 @@ const Users = require("../models/Users.js")
 module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log("A user connected with ID:", socket.id);
-    let userId;
-    let token;
-    socket.on("user_connect", async (data) => {
+    // Extract userId and token from handshake query
+    const { userId, token } = socket.handshake.query;
+    
+    // Immediately handle the connection
+    const handleConnection = async () => {
       try {
-        token = socket.handshake.query.token;
-        if(token){
-        // Update the user's is_online status
-        await Users.updateOnlineStatus(data.userId, 1);
-        console.log("User online status updated:", data.userId);
-        // Notify other users about the online status change
-        io.emit("user_online", { userId: data.userId, is_online: 1 });
+        if (userId) {
+          await Users.updateOnlineStatus(userId, 1);
+          console.log(`User ${userId} is now online`);
+          // Broadcast to all except the current user
+          socket.broadcast.emit("user_online", { userId, is_online: 1 });
         }
       } catch (err) {
-        console.error("Invalid token:", err);
+        console.error("Error updating online status:", err);
       }
-    })
-
-
-    socket.on("user_disconnect", async (data) => {
-      try {
-        // Update the user's is_online status
-        await Users.updateOnlineStatus(data.userId, 0);
-        console.log("User online status updated to offline:", data.userId);
-        // Notify other users about the online status change
-        io.emit("user_offline", { userId: data.userId, is_online: 0 });
-      } catch (err) {
-        console.error("Invalid token:", err);
-      }
-    })
-
+    };
+    
+    // Handle initial connection
+    handleConnection();
+    
+    // Handle manual disconnection event
+    socket.on("user_disconnect", async () => {
+      await handleDisconnection(userId);
+    });
+    
+    // Handle socket disconnect
     socket.on("disconnect", async () => {
+      await handleDisconnection(userId);
+    });
+    
+    // Common disconnection handler
+    const handleDisconnection = async (userId) => {
       try {
-        userId = socket.handshake.query.userId;
-        console.log("User ID:", userId);
         if (userId) {
           await Users.updateOnlineStatus(userId, 0);
-          console.log("User online status updated to offline:", userId);
-          io.emit("user_offline", { userId: userId, is_online: 0 });
+          console.log(`User ${userId} is now offline`);
+          // Broadcast to all except the current user (who's already disconnected)
+          io.emit("user_offline", { userId, is_online: 0 });
         }
-        console.log("A user disconnected:", socket.id);
       } catch (err) {
-        console.error("Invalid token:", err);
+        console.error("Error updating offline status:", err);
       }
-    });
+    };
+
+
+
+    
     // Handle sending messages
     socket.on("send_message", async (data) => {
 

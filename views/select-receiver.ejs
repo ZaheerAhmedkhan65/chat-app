@@ -22,24 +22,43 @@
   </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io({query: {userId: "<%= userId %>", token: "<%= token %>"}});
+<script>
     const userId = "<%= userId %>";
-    const token = "<%= token %>";
+    const socket = io({
+        query: {
+            userId: userId,
+            token: "<%= token %>"
+        }
+    });
 
-    console.log("token in select receiver",token);
-    
-
+    // Handle online/offline events
     socket.on("user_online", (data) => {
-      console.log("User online status:", data.userId);
+        console.log(`User ${data.userId} is now online`);
+        // Update UI accordingly
+        updateUserStatus(data.userId, true);
     });
 
     socket.on("user_offline", (data) => {
-      console.log("User online status:", data.userId);
+        console.log(`User ${data.userId} is now offline`);
+        // Update UI accordingly
+        updateUserStatus(data.userId, false);
     });
-    document.addEventListener("DOMContentLoaded", () => {
-      socket.emit("user_connect",{userId, token});
+
+    // Function to update UI
+    function updateUserStatus(userId, isOnline) {
+        // Implement your UI update logic here
+        // For example:
+        const statusElement = document.querySelector(`.user-status[data-user-id="${userId}"]`);
+        if (statusElement) {
+            statusElement.textContent = isOnline ? 'Online' : 'Offline';
+            statusElement.className = `user-status ${isOnline ? 'online' : 'offline'}`;
+        }
+    }
+
+    // Handle page/browser close
+    window.addEventListener('beforeunload', () => {
+        socket.emit("user_disconnect");
     });
-  </script> 
+</script>
 
 <%- include('partials/_footer') %>

@@ -22,7 +22,7 @@
               <strong class="m-0 p-0">
                 <%= receiverUsername %>
               </strong>
-              <div class="user-connection-status"><%= receiver.is_online ? 'Online' : 'Offline' %></div>
+              <div class="user-connection-status" data-user-id="<%=receiver.id%>" ><%= receiver.is_online ? 'Online' : 'Offline' %></div>
             </div>
           </div>
         </div>
@@ -115,8 +115,13 @@
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io({query: {userId: "<%= userId %>"}});
     const userId = "<%= userId %>";
+      const socket = io({
+          query: {
+              userId: userId,
+              token: "<%= token %>"
+          } 
+      });
     const receiver = "<%= receiver %>";
     const messageForm = document.getElementById("message-form");
     const messageInput = document.getElementById("message");
@@ -319,19 +324,6 @@
       userConnectionStatus.textContent = "Typing . . .";
     });
 
-    socket.on("user_online", (data) => {
-      console.log("user data :",data.is_online);
-      console.log("user id from socket",data.userId);
-      console.log("user id locally",userId);
-      const userOnline = data.userId === userId && data.is_online === 1;
-      userConnectionStatus.textContent = `${userOnline ? 'Online' : 'Offline' }`;
-    });
-
-    socket.on("user_offline", (data) => {
-      console.log("user offline",data.updated_at);
-      userConnectionStatus.textContent = `${data.is_online ? 'Online' : 'Offline' }`;
-    });
-
     socket.on("stop typing", () => {
       userConnectionStatus.textContent = "<%= receiver.is_online ? 'Online' : 'Offline' %>";
     });
@@ -339,6 +331,37 @@
     document.addEventListener("DOMContentLoaded", () => {
       socket.emit("user_connect",{userId});
     });
+  </script>
+  <script>
+  
+      // Handle online/offline events
+      socket.on("user_online", (data) => {
+          console.log(`User ${data.userId} is now online`);
+          // Update UI accordingly
+          updateUserStatus(data.userId, true);
+      });
+  
+      socket.on("user_offline", (data) => {
+          console.log(`User ${data.userId} is now offline`);
+          // Update UI accordingly
+          updateUserStatus(data.userId, false);
+      });
+  
+      // Function to update UI
+      function updateUserStatus(userId, isOnline) {
+          // Implement your UI update logic here
+          // For example:
+          const statusElement = document.querySelector(`.user-connection-status[data-user-id="${userId}"]`);
+          if (statusElement) {
+              statusElement.textContent = isOnline ? 'Online' : 'Offline';
+              statusElement.className = `user-status ${isOnline ? 'online' : 'offline'}`;
+          }
+      }
+  
+      // Handle page/browser close
+      window.addEventListener('beforeunload', () => {
+          socket.emit("user_disconnect");
+      });
   </script>
   <script src="/js/chat/scrollToBottom.js"></script>
   <script src="/js/chat/editAndDeleteMessage.js"></script>

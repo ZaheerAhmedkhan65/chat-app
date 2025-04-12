@@ -33,13 +33,10 @@ const login = async (req, res) => {
     // Set the token in an HTTP-only cookie that expires in 1 week
     res.cookie('token', token, {
       httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
+      secure: true, // Use HTTPS in production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week expiration time
       sameSite: 'Strict', // Prevent CSRF attacks
     });
-
-    // Update user status to online
-    await User.updateOnlineStatus(user.id, 1);
 
     res.redirect('/users/select-receiver');
   } catch (error) {
@@ -50,14 +47,8 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const token = req.cookies.token;
-    if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      await User.updateOnlineStatus(decoded.userId, 0); // Set is_online to 0 (false)
-    }
-
-    res.clearCookie('token');
-    res.redirect('/auth/login');
+      res.clearCookie('token');
+      res.redirect('/auth/login');
   } catch (error) {
     console.error('Error during logout:', error);
     res.status(500).json({ error: 'Error during logout' });
