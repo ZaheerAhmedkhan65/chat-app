@@ -1,3 +1,6 @@
 node_modules
+db_schema
+scripts
+seeders
+notes.txt
 .env
-planning.txt
