@@ -1,9 +1,9 @@
-const app = require('./app');
+const app = require('./config/app');
 const PORT = process.env.PORT || 3000;
 const http = require("http");
 const socketIo = require("socket.io");
 
-const socketHandler = require('./webSockets/socketHandler');
+const socketServer = require('./webSockets');
 
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -13,7 +13,7 @@ const io = socketIo(server, {
   }
 });
 
-socketHandler(io);
+socketServer(io);
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -1,18 +1,34 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+// config/db.js
+const mysql = require("mysql2/promise");
+require("dotenv").config();
+let db = null;
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT, // Add this if your TiDB Cloud uses a custom port
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: true, // Enable SSL for TiDB Cloud
-  },
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+if (process.env.NODE_ENV == "production") {
+  db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: {
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      rejectUnauthorized: true
+    }
+  });
+} else {
+  db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+  });
+}
 
-module.exports = pool.promise();
+
+console.log("Database is connected");
+module.exports = db;
